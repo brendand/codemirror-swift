@@ -124,6 +124,12 @@ function setContent(text) {
   });
 }
 
+function insertContent(text) {
+    editorView.dispatch({
+    changes: { from: editorView.state.selection.main.from, to: editorView.state.selection.main.to, insert: text },
+    });
+}
+
 function setListener(fn) {
   editorView.dispatch({
     effects: listener.reconfigure(
@@ -153,6 +159,7 @@ export {
   setLanguage,
   getSupportedLanguages,
   setContent,
+  insertContent,
   setListener,
   setReadOnly,
   setLineWrapping,

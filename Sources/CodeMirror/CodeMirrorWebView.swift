@@ -54,6 +54,15 @@ public final class CodeMirrorWebView: NativeView {
             )
         )
     }
+    
+    public func insertContent(_ value: String) {
+        queueJavascriptFunction(
+            JavascriptFunction(
+                functionString: "CodeMirror.insertContent(value)",
+                args: ["value": value]
+            )
+        )
+    }
 
     public func setDarkMode(on: Bool) {
         queueJavascriptFunction(

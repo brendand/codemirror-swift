@@ -59,9 +59,6 @@ const SUPPORTED_LANGUAGES_MAP = {
 };
 
 const baseTheme = EditorView.baseTheme({
-  "&": {
-    fontSize: "11pt",
-    },
   "&light": {
     backgroundColor: "white", // the default codemirror light theme doesn't set this up
     "color-scheme": "light",
@@ -75,7 +72,7 @@ var completions = [
 ];
 
 function customCompletions(context) {
-    let word = context.matchBefore(/\w*/)
+    let word = context.matchBefore(/\w*[^'^"]/)
     if (word.from == word.to && !context.explicit)
         return null
         return {
@@ -197,7 +194,6 @@ function setCompletions(comps, snippets) {
             }
         }
     }
-    
     customCompletions(completions)
 }
 

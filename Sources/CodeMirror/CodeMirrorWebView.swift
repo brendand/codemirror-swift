@@ -54,7 +54,7 @@ public final class CodeMirrorWebView: NativeView {
             )
         )
     }
-    
+
     public func insertContent(_ value: String) {
         queueJavascriptFunction(
             JavascriptFunction(
@@ -63,13 +63,22 @@ public final class CodeMirrorWebView: NativeView {
             )
         )
     }
-
+    
     public func setDarkMode(on: Bool) {
         queueJavascriptFunction(
             JavascriptFunction(functionString: "CodeMirror.setDarkMode(on)", args: ["on": on])
         )
     }
 
+    public func setFontSize(_ value: Int) {
+        queueJavascriptFunction(
+            JavascriptFunction(
+                functionString: "CodeMirror.setFontSize(value)",
+                args: ["value": value]
+            )
+        )
+    }
+    
     public func setLanguage(_ lang: String) {
         queueJavascriptFunction(
             JavascriptFunction(functionString: "CodeMirror.setLanguage(\"\(lang)\")")
@@ -103,6 +112,15 @@ public final class CodeMirrorWebView: NativeView {
         )
     }
 
+    public func setCompletions(_ completions: [[String: String]], snippets: [[String : Any]]?) {
+        queueJavascriptFunction(
+            JavascriptFunction(
+                functionString: "CodeMirror.setCompletions(comps, snippets)",
+                args: ["comps": completions, "snippets" : snippets ?? [[:]]]
+            )
+        )
+    }
+    
     private func commonInit() {
         webview.allowsMagnification = false
         webview.translatesAutoresizingMaskIntoConstraints = false

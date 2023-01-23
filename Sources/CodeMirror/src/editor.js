@@ -1,12 +1,14 @@
 import * as CodeMirror from "codemirror";
-import { javascript } from "@codemirror/lang-javascript";
-import { Compartment, EditorState } from "@codemirror/state";
-import { EditorView } from "@codemirror/view";
+import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
+import {EditorState, Compartment} from "@codemirror/state";
+import {EditorView} from "@codemirror/view";
+import {basicSetup} from "codemirror";
 import { indentWithTab } from "@codemirror/commands";
 import { html } from "@codemirror/lang-html";
 import { json } from "@codemirror/lang-json";
 import { xml } from "@codemirror/lang-xml";
 import { css } from "@codemirror/lang-css";
+import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
 
 import {
@@ -37,23 +39,29 @@ import {
   autocompletion,
   closeBracketsKeymap,
   completionKeymap,
+  snippetCompletion,
 } from "@codemirror/autocomplete";
 
 const theme = new Compartment();
 const language = new Compartment();
 const listener = new Compartment();
 const readOnly = new Compartment();
+const tabSize = new Compartment();
 const lineWrapping = new Compartment();
 const SUPPORTED_LANGUAGES_MAP = {
   javascript,
   json,
   html,
   css,
+  markdown,
   xml,
   txt: () => [],
 };
 
 const baseTheme = EditorView.baseTheme({
+  "&": {
+    fontSize: "11pt",
+    },
   "&light": {
     backgroundColor: "white", // the default codemirror light theme doesn't set this up
     "color-scheme": "light",
@@ -63,40 +71,58 @@ const baseTheme = EditorView.baseTheme({
   },
 });
 
+var completions = [
+];
+
+function customCompletions(context) {
+    let word = context.matchBefore(/\w*/)
+    if (word.from == word.to && !context.explicit)
+        return null
+        return {
+            from: word.from,
+        options: completions
+        }
+};
+
+const myCustomCompletions = javascriptLanguage.data.of({
+autocomplete: customCompletions
+});
+
 const editorView = new CodeMirror.EditorView({
   doc: "",
   extensions: [
-    lineNumbers(),
-    highlightActiveLineGutter(),
-    highlightSpecialChars(),
-    history(),
-    foldGutter(),
-    drawSelection(),
-    dropCursor(),
-    indentOnInput(),
-    syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-    bracketMatching(),
-    closeBrackets(),
-    autocompletion(),
-    rectangularSelection(),
-    crosshairCursor(),
-    highlightActiveLine(),
-    highlightSelectionMatches(),
-    keymap.of([
-      ...closeBracketsKeymap,
-      ...defaultKeymap,
-      ...searchKeymap,
-      ...historyKeymap,
-      ...foldKeymap,
-      ...completionKeymap,
-      indentWithTab,
-    ]),
-    readOnly.of([]),
-    lineWrapping.of([]),
-    baseTheme,
-    theme.of(oneDark),
-    language.of(json()),
-    listener.of([]),
+      lineNumbers(),
+      highlightActiveLineGutter(),
+      highlightSpecialChars(),
+      history(),
+      foldGutter(),
+      drawSelection(),
+      dropCursor(),
+      indentOnInput(),
+      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+      bracketMatching(),
+      closeBrackets(),
+      myCustomCompletions,
+      autocompletion(),
+      rectangularSelection(),
+      crosshairCursor(),
+      highlightActiveLine(),
+      highlightSelectionMatches(),
+      keymap.of([
+          ...closeBracketsKeymap,
+             ...defaultKeymap,
+             ...searchKeymap,
+             ...historyKeymap,
+             ...foldKeymap,
+             ...completionKeymap,
+             indentWithTab,
+      ]),
+      readOnly.of([]),
+      lineWrapping.of([]),
+      baseTheme,
+      theme.of(oneDark),
+      language.of(javascript()),
+      listener.of([]),
   ],
   parent: document.body,
 });
@@ -109,6 +135,12 @@ function setDarkMode(active) {
   editorView.dispatch({
     effects: theme.reconfigure(active ? [oneDark] : []),
   });
+}
+
+function setFontSize(size) {
+    editorView.dispatch({
+    effects: baseTheme.querySelector("&").style.fontSize = fontSize + 'pt',
+    });
 }
 
 function setLanguage(lang) {
@@ -154,8 +186,25 @@ function setLineWrapping(enabled) {
   });
 }
 
+function setCompletions(comps, snippets) {
+    completions = comps;
+    
+    if (snippets != undefined) {
+        for (var snippet of snippets) {
+            for (var key in snippet) {
+                let completion = snippetCompletion(key, snippet[key]);
+                completions.push(completion);
+            }
+        }
+    }
+    
+    customCompletions(completions)
+}
+
+
 export {
   setDarkMode,
+  setFontSize,
   setLanguage,
   getSupportedLanguages,
   setContent,
@@ -163,5 +212,6 @@ export {
   setListener,
   setReadOnly,
   setLineWrapping,
+  setCompletions,
   editorView,
 };

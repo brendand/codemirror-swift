@@ -29,6 +29,11 @@ class EditorViewController: NSViewController, CodeMirrorWebViewDelegate {
     @IBAction func toggleDarkMode(_ sender: Any) {
         darkmode.toggle()
         codeMirrorView.setDarkMode(on: darkmode)
+        if darkmode == true {
+            codeMirrorView.setFontSize(25)
+        } else {
+            codeMirrorView.setFontSize(11)
+        }
     }
 
     @IBAction func languageChanged(_ sender: Any) {
@@ -68,7 +73,25 @@ class EditorViewController: NSViewController, CodeMirrorWebViewDelegate {
     }
 
     func codeMirrorViewDidLoadSuccess(_ sender: CodeMirrorWebView) {
-
+        
+        let completions =  [["label" : "fetchRecords()", "type" : "function"],
+                            ["label" : "getFormIdsByName", "type" : "function"],
+                            ["label" : "getFormNamed", "type" : "function"],
+                            ["label" : "getForms", "type" : "function"],
+                            ["label" : "getFormWithId", "type" : "function"],
+                            ["label" : "getId()", "type" : "function"],
+                            
+                            ["label" : "record", "type" : "variable", "info" : "The currently selected record"],
+                            ["label" : "form", "type" : "variable", "info" : "The currently selected form"],
+                            ["label" : "search", "type" : "variable", "info" : "The currently selected saved search"],
+                            ["label" : "Utils", "type" : "keyword"]]
+        
+        let snippets = [
+            ["createNewFormNamed('${Form Name}');" : ["label" : "createNewFormNamed", "type" : "function"]],
+            ["mySnippet2(${three}, ${four})" : ["label" : "mySnippet2"]]
+        ]
+        
+        codeMirrorView.setCompletions(completions, snippets: snippets)
     }
 
     func codeMirrorViewDidLoadError(_ sender: CodeMirrorWebView, error: Error) {

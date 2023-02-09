@@ -1,5 +1,5 @@
 import * as CodeMirror from "codemirror";
-import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
+import { javascript, javascriptLanguage, scopeCompletionSource } from "@codemirror/lang-javascript";
 import {EditorState, Compartment} from "@codemirror/state";
 import {EditorView} from "@codemirror/view";
 import {basicSetup} from "codemirror";
@@ -10,6 +10,7 @@ import { xml } from "@codemirror/lang-xml";
 import { css } from "@codemirror/lang-css";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { syntaxTree } from "@codemirror/language";
 
 import {
   lineNumbers,
@@ -59,30 +60,53 @@ const SUPPORTED_LANGUAGES_MAP = {
 };
 
 const baseTheme = EditorView.baseTheme({
-  "&light": {
+    "&light": {
     backgroundColor: "white", // the default codemirror light theme doesn't set this up
-    "color-scheme": "light",
-  },
-  "&dark": {
-    "color-scheme": "dark",
-  },
+        "color-scheme": "light",
+    },
+    "&dark": {
+        "color-scheme": "dark",
+    },
 });
 
 var completions = [
 ];
 
+var formCompletions = [
+    {label: "match", type: "keyword"},
+    {label: "hello", type: "variable", info: "(World)"},
+    {label: "magic", type: "text", apply: "⠁⭒*.✩.*⭒⠁", detail: "macro"}
+                       
+                   ];
+
 function customCompletions(context) {
-    let word = context.matchBefore(/\w*[^'^"]/)
-    if (word.from == word.to && !context.explicit)
-        return null
+        
+    let word = context.matchBefore(/[\w\.]*/);
+//    insertContent(" word.text: " + word.text);
+    if (word.text == "form." && !context.explicit) {
+        insertContent(" found form.: " + JSON.stringify(word.text));
+        return {
+            "from": word.from,
+            "options": formCompletions,
+        }
+    }
+    else
+        if (word.from == word.to && !context.explicit) {
+        return null;
+    } else {
         return {
             from: word.from,
         options: completions
         }
+    }
 };
 
 const myCustomCompletions = javascriptLanguage.data.of({
-autocomplete: customCompletions
+autocomplete: scopeCompletionSource(globalThis)
+});
+
+const myFormCompletions = javascriptLanguage.data.of({
+autocomplete: formCompletions
 });
 
 const editorView = new CodeMirror.EditorView({
@@ -99,8 +123,12 @@ const editorView = new CodeMirror.EditorView({
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       bracketMatching(),
       closeBrackets(),
+      myFormCompletions,
       myCustomCompletions,
-      autocompletion(),
+      autocompletion({
+         activateOnTyping: true,
+         closeOnBlur: false,
+      }),
       rectangularSelection(),
       crosshairCursor(),
       highlightActiveLine(),
@@ -129,9 +157,9 @@ function getSupportedLanguages() {
 }
 
 function setDarkMode(active) {
-  editorView.dispatch({
+    editorView.dispatch({
     effects: theme.reconfigure(active ? [oneDark] : []),
-  });
+    });
 }
 
 function setFontSize(size) {
@@ -148,14 +176,25 @@ function setLanguage(lang) {
 }
 
 function setContent(text) {
-  editorView.dispatch({
+    editorView.dispatch({
     changes: { from: 0, to: editorView.state.doc.length, insert: text },
-  });
+    });
 }
 
 function insertContent(text) {
     editorView.dispatch({
     changes: { from: editorView.state.selection.main.from, to: editorView.state.selection.main.to, insert: text },
+    });
+}
+
+function formatJSONSelection() {
+
+    let firstRange = editorView.state.selection.ranges.at(0);
+    let selectedText = editorView.state.doc.toString().substring(firstRange.from,firstRange.to)
+    var jsonPretty = JSON.stringify(JSON.parse(selectedText), null, 4);
+
+    editorView.dispatch({
+    changes: { from: editorView.state.selection.main.from, to: editorView.state.selection.main.to, insert: jsonPretty },
     });
 }
 
@@ -194,6 +233,9 @@ function setCompletions(comps, snippets) {
             }
         }
     }
+    
+//    insertContent(JSON.stringify(completions));
+
     customCompletions(completions)
 }
 

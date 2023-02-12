@@ -12,6 +12,7 @@ import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { syntaxTree } from "@codemirror/language";
 
+
 import {
   lineNumbers,
   highlightActiveLineGutter,
@@ -48,6 +49,7 @@ const language = new Compartment();
 const listener = new Compartment();
 const readOnly = new Compartment();
 const tabSize = new Compartment();
+const fontSize = new Compartment();
 const lineWrapping = new Compartment();
 const SUPPORTED_LANGUAGES_MAP = {
   javascript,
@@ -72,41 +74,18 @@ const baseTheme = EditorView.baseTheme({
 var completions = [
 ];
 
-var formCompletions = [
-    {label: "match", type: "keyword"},
-    {label: "hello", type: "variable", info: "(World)"},
-    {label: "magic", type: "text", apply: "⠁⭒*.✩.*⭒⠁", detail: "macro"}
-                       
-                   ];
-
 function customCompletions(context) {
-        
-    let word = context.matchBefore(/[\w\.]*/);
-//    insertContent(" word.text: " + word.text);
-    if (word.text == "form." && !context.explicit) {
-        insertContent(" found form.: " + JSON.stringify(word.text));
-        return {
-            "from": word.from,
-            "options": formCompletions,
-        }
-    }
-    else
-        if (word.from == word.to && !context.explicit) {
-        return null;
-    } else {
+    let word = context.matchBefore(/\w*/)
+    if (word.from == word.to && !context.explicit)
+        return null
         return {
             from: word.from,
         options: completions
         }
-    }
 };
 
 const myCustomCompletions = javascriptLanguage.data.of({
-autocomplete: scopeCompletionSource(globalThis)
-});
-
-const myFormCompletions = javascriptLanguage.data.of({
-autocomplete: formCompletions
+autocomplete: scopeCompletionSource(completions)
 });
 
 const editorView = new CodeMirror.EditorView({
@@ -123,7 +102,6 @@ const editorView = new CodeMirror.EditorView({
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       bracketMatching(),
       closeBrackets(),
-      myFormCompletions,
       myCustomCompletions,
       autocompletion({
          activateOnTyping: true,
@@ -144,6 +122,7 @@ const editorView = new CodeMirror.EditorView({
       ]),
       readOnly.of([]),
       lineWrapping.of([]),
+      fontSize.of([]),
       baseTheme,
       theme.of(oneDark),
       language.of(javascript()),
@@ -162,9 +141,15 @@ function setDarkMode(active) {
     });
 }
 
+function setTabSize(view, size) {
+    editorView.dispatch({
+    effects: tabSize.reconfigure(EditorState.tabSize.of(size))
+    })
+}
+
 function setFontSize(size) {
     editorView.dispatch({
-    effects: baseTheme.querySelector("&").style.fontSize = fontSize + 'pt',
+    effects: fontSize.reconfigure(EditorView.contentAttributes.of({ style: "font-size : " + size + "pt;" }),)
     });
 }
 
@@ -215,6 +200,7 @@ function setReadOnly(value) {
     effects: readOnly.reconfigure(value ? EditorState.readOnly.of(true) : []),
   });
 }
+
 
 function setLineWrapping(enabled) {
   editorView.dispatch({

@@ -61,9 +61,9 @@ const SUPPORTED_LANGUAGES_MAP = {
   txt: () => [],
 };
 
-const baseTheme = EditorView.baseTheme({
+var baseTheme = EditorView.baseTheme({
     "&light": {
-    backgroundColor: "white", // the default codemirror light theme doesn't set this up
+    backgroundColor: "white",
         "color-scheme": "light",
     },
     "&dark": {
@@ -85,7 +85,7 @@ function customCompletions(context) {
 };
 
 const myCustomCompletions = javascriptLanguage.data.of({
-autocomplete: scopeCompletionSource(completions)
+autocomplete: customCompletions
 });
 
 const editorView = new CodeMirror.EditorView({
@@ -148,8 +148,22 @@ function setTabSize(view, size) {
 }
 
 function setFontSize(size) {
+    
+    baseTheme = EditorView.baseTheme({
+        "&light": {
+        backgroundColor: "white",
+            "color-scheme": "light",
+            fontSize : size + "pt",
+        },
+        "&dark": {
+            "color-scheme": "dark",
+            fontSize : size + "pt",
+        },
+    }),
+    
     editorView.dispatch({
-    effects: fontSize.reconfigure(EditorView.contentAttributes.of({ style: "font-size : " + size + "pt;" }),)
+        //    effects: fontSize.reconfigure(EditorView.editorAttributes.of({ style: "font-size : " + size + "pt;" }),)
+        effects: theme.reconfigure(baseTheme)
     });
 }
 
@@ -220,8 +234,6 @@ function setCompletions(comps, snippets) {
         }
     }
     
-//    insertContent(JSON.stringify(completions));
-
     customCompletions(completions)
 }
 

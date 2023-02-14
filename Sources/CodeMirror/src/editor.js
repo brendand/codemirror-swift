@@ -75,17 +75,20 @@ var completions = [
 ];
 
 function customCompletions(context) {
-    let word = context.matchBefore(/\w*/)
-    if (word.from == word.to && !context.explicit)
-        return null
+    let before = context.matchBefore(/\w+/)
+    // If completion wasn't explicitly started and there
+    // is no word before the cursor, don't open completions.
+    if (!context.explicit && !before) return null
         return {
-            from: word.from,
-        options: completions
+            from: before ? before.from : context.pos,
+        options: completions,
+        validFor: /^\w*$/
         }
-};
+}
 
 const myCustomCompletions = javascriptLanguage.data.of({
-autocomplete: customCompletions
+//autocomplete: scopeCompletionSource(globalThis)
+    autocomplete: customCompletions
 });
 
 const editorView = new CodeMirror.EditorView({
@@ -148,22 +151,19 @@ function setTabSize(view, size) {
 }
 
 function setFontSize(size) {
-    
-    baseTheme = EditorView.baseTheme({
-        "&light": {
-        backgroundColor: "white",
-            "color-scheme": "light",
-            fontSize : size + "pt",
-        },
-        "&dark": {
-            "color-scheme": "dark",
-            fontSize : size + "pt",
-        },
-    }),
+
+//    baseTheme = EditorView.baseTheme({
+//        ".cm-content": {
+//            fontSize : size + "pt",
+//        },
+//        ".cm-gutters": {
+//            fontSize : size + "pt",
+//        },
+//    });
     
     editorView.dispatch({
-        //    effects: fontSize.reconfigure(EditorView.editorAttributes.of({ style: "font-size : " + size + "pt;" }),)
-        effects: theme.reconfigure(baseTheme)
+            effects: fontSize.reconfigure(EditorView.editorAttributes.of({ style: "font-size : " + size + "pt;" }),)
+//        effects: theme.reconfigure(baseTheme)
     });
 }
 

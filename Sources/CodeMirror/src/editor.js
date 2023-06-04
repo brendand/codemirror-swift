@@ -152,7 +152,7 @@ function setTabSize(view, size) {
 
 function setFontSize(size) {
 
-//    baseTheme = EditorView.baseTheme({
+//    let currentTheme = EditorView.theme({
 //        ".cm-content": {
 //            fontSize : size + "pt",
 //        },
@@ -160,10 +160,13 @@ function setFontSize(size) {
 //            fontSize : size + "pt",
 //        },
 //    });
+//
+//    insertContent(JSON.stringify(currentTheme));
+
     
     editorView.dispatch({
-            effects: fontSize.reconfigure(EditorView.editorAttributes.of({ style: "font-size : " + size + "pt;" }),)
-//        effects: theme.reconfigure(baseTheme)
+        effects: fontSize.reconfigure(EditorView.editorAttributes.of({ style: "font-size : " + size + "pt;" }),)
+//        effects: theme.reconfigure(currentTheme)
     });
 }
 
@@ -237,6 +240,11 @@ function setCompletions(comps, snippets) {
     customCompletions(completions)
 }
 
+
+const timer = setInterval(() => {
+    editorView.focus();
+    if(editorView.hasFocus) clearInterval(timer);
+}, 500);
 
 export {
   setDarkMode,

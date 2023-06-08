@@ -31,7 +31,20 @@ class EditorViewController: NSViewController, CodeMirrorWebViewDelegate {
 
     @IBAction func toggleDarkMode(_ sender: Any) {
         darkmode.toggle()
+        
         codeMirrorView.setDarkMode(on: darkmode)
+
+        if darkmode == true {
+            codeMirrorView.setFontSize(25)
+        } else {
+            codeMirrorView.setFontSize(12)
+        }
+        
+
+    }
+    
+    @IBAction func setTabSize(_ sender: Any) {
+        codeMirrorView.setTabSize(4)
     }
 
     @IBAction func languageChanged(_ sender: Any) {

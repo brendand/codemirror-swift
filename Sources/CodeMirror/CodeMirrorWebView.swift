@@ -87,6 +87,15 @@ public final class CodeMirrorWebView: NativeView {
         )
     }
     
+    public func setTabSize(_ value: Int) {
+        queueJavascriptFunction(
+            JavascriptFunction(
+                functionString: "CodeMirror.setTabSize(value)",
+                args: ["value": value]
+            )
+        )
+    }
+    
     public func setLanguage(_ lang: String) {
         queueJavascriptFunction(
             JavascriptFunction(functionString: "CodeMirror.setLanguage(\"\(lang)\")")

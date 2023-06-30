@@ -36,11 +36,19 @@ public final class CodeMirrorWebView: NativeView {
     private var pageLoaded = false
     private var pendingFunctions = [JavascriptFunction]()
 
+    #if os(macOS)
     public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         commonInit()
     }
+    #else
+    public override init(frame frameRect: CGRect) {
+        super.init(frame: frameRect)
+        commonInit()
+    }
+    #endif
     
+    #if (macOS)
     override public func viewDidChangeEffectiveAppearance() {
         if self.effectiveAppearance.name == .aqua {
             self.setDarkMode(on: false)
@@ -48,6 +56,7 @@ public final class CodeMirrorWebView: NativeView {
             self.setDarkMode(on: true)
         }
     }
+    #endif
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -139,7 +148,9 @@ public final class CodeMirrorWebView: NativeView {
     }
     
     private func commonInit() {
+        #if os(macOS)
         webview.allowsMagnification = false
+        #endif
         webview.translatesAutoresizingMaskIntoConstraints = false
         addSubview(webview)
 

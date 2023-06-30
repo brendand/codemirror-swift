@@ -4,6 +4,7 @@ import {EditorState, Compartment} from "@codemirror/state";
 import {EditorView} from "@codemirror/view";
 import {basicSetup} from "codemirror";
 import { indentWithTab } from "@codemirror/commands";
+import { indentUnit } from "@codemirror/language";
 import { html } from "@codemirror/lang-html";
 import { json } from "@codemirror/lang-json";
 import { xml } from "@codemirror/lang-xml";
@@ -60,6 +61,34 @@ const SUPPORTED_LANGUAGES_MAP = {
   xml,
   txt: () => [],
 };
+
+const getIndentationExtensions = (indentation: IIndentation): Array<Extension> => {
+    const extensions: Array<Extension> = [];
+    
+    const tabSizeCompartment = new Compartment();
+    let indentUnitString: string; // What will be added when user presses tab or indentation happens
+    
+    extensions.push(
+                    tabSizeCompartment.of(EditorState.tabSize.of(indentation.tabWidth)) // Tab width (how many spaces in a tab)
+                    );
+    
+    if (indentation.using === 'spaces') {
+        indentUnitString = ' '.repeat(indentation.indentWidth);
+    } else {
+        const numberOfTabs = Math.floor(indentation.indentWidth / indentation.tabWidth);
+        indentUnitString = '\t'.repeat(numberOfTabs);
+    }
+    
+    extensions.push(indentUnit.of(indentUnitString));
+    
+    return extensions;
+};
+
+const keymaps: Array<KeyBinding> = [];
+
+if (indentation.tabKeyAction === 'indent') {
+    keymaps.push(indentWithTab); // Trigger indentation instead of typing tab
+}
 
 var baseTheme = EditorView.baseTheme({
     "&light": {
@@ -122,6 +151,7 @@ const editorView = new CodeMirror.EditorView({
              ...foldKeymap,
              ...completionKeymap,
              indentWithTab,
+             indentUnit
       ]),
       readOnly.of([]),
       lineWrapping.of([]),
@@ -130,6 +160,7 @@ const editorView = new CodeMirror.EditorView({
       theme.of(oneDark),
       language.of(javascript()),
       listener.of([]),
+      indentUnit.of('\t'),
   ],
   parent: document.body,
 });

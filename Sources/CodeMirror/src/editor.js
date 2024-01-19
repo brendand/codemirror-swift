@@ -123,8 +123,7 @@ const editorView = new CodeMirror.EditorView({
              ...historyKeymap,
              ...foldKeymap,
              ...completionKeymap,
-             indentWithTab,
-             indentUnit
+             ...indentWithTab,
       ]),
       readOnly.of([]),
       lineWrapping.of([]),
@@ -133,7 +132,7 @@ const editorView = new CodeMirror.EditorView({
       theme.of(oneDark),
       language.of(javascript()),
       listener.of([]),
-      indentUnit.of([]),
+      indentUnit.of("    "),
   ],
   parent: document.body,
 });
@@ -148,9 +147,9 @@ function setDarkMode(active) {
     });
 }
 
-function setTabChar(tabchar) {
+function setTabChar(value) {
     editorView.dispatch({
-    effects: indentUnit.reconfigure(EditorState.indentUnit.of(tabchar))
+    effects: indentUnit.reconfigure(EditorState.indentUnit.of(value))
     })
 }
 
@@ -253,6 +252,7 @@ const timer = setInterval(() => {
 export {
   setDarkMode,
   setFontSize,
+  setTabChar,
   setLanguage,
   getSupportedLanguages,
   setContent,
@@ -261,6 +261,5 @@ export {
   setReadOnly,
   setLineWrapping,
   setCompletions,
-  setTabChar,
   editorView,
 };

@@ -123,7 +123,7 @@ const editorView = new CodeMirror.EditorView({
              ...historyKeymap,
              ...foldKeymap,
              ...completionKeymap,
-             ...indentWithTab,
+             indentWithTab,
       ]),
       readOnly.of([]),
       lineWrapping.of([]),

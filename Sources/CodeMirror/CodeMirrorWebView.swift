@@ -96,10 +96,10 @@ public final class CodeMirrorWebView: NativeView {
         )
     }
     
-    public func setTabSize(_ value: Int) {
+    public func setTabChar(_ value: String) {
         queueJavascriptFunction(
             JavascriptFunction(
-                functionString: "CodeMirror.setTabSize(value)",
+                functionString: "CodeMirror.setTabChar(value)",
                 args: ["value": value]
             )
         )

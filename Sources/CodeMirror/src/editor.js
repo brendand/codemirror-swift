@@ -62,33 +62,6 @@ const SUPPORTED_LANGUAGES_MAP = {
   txt: () => [],
 };
 
-// const getIndentationExtensions = (indentation: IIndentation): Array<Extension> => {
-//     const extensions: Array<Extension> = [];
-//     
-//     const tabSizeCompartment = new Compartment();
-//     let indentUnitString: string; // What will be added when user presses tab or indentation happens
-//     
-//     extensions.push(
-//                     tabSizeCompartment.of(EditorState.tabSize.of(indentation.tabWidth)) // Tab width (how many spaces in a tab)
-//                     );
-//     
-//     if (indentation.using === 'spaces') {
-//         indentUnitString = ' '.repeat(indentation.indentWidth);
-//     } else {
-//         const numberOfTabs = Math.floor(indentation.indentWidth / indentation.tabWidth);
-//         indentUnitString = '\t'.repeat(numberOfTabs);
-//     }
-//     
-//     extensions.push(indentUnit.of(indentUnitString));
-//     
-//     return extensions;
-// };
-// 
-// const keymaps: Array<KeyBinding> = [];
-// 
-// if (indentation.tabKeyAction === 'indent') {
-//     keymaps.push(indentWithTab); // Trigger indentation instead of typing tab
-// }
 
 var baseTheme = EditorView.baseTheme({
     "&light": {
@@ -175,9 +148,9 @@ function setDarkMode(active) {
     });
 }
 
-function setTabSize(view, size) {
+function setTabChar(tabChar) {
     editorView.dispatch({
-    effects: tabSize.reconfigure(EditorState.tabSize.of(size))
+    effects: tabSize.reconfigure(EditorState.indentUnit.of(tabChar))
     })
 }
 

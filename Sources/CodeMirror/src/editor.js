@@ -150,7 +150,7 @@ function setDarkMode(active) {
 
 function setTabChar(tabChar) {
     editorView.dispatch({
-    effects: tabSize.reconfigure(EditorState.indentUnit.of(tabChar))
+    effects: indentUnit.reconfigure(EditorState.indentUnit.of(tabChar))
     })
 }
 

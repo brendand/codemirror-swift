@@ -133,7 +133,7 @@ const editorView = new CodeMirror.EditorView({
       theme.of(oneDark),
       language.of(javascript()),
       listener.of([]),
-      indentUnit.of('\t'),
+      indentUnit.of([]),
   ],
   parent: document.body,
 });
@@ -148,9 +148,9 @@ function setDarkMode(active) {
     });
 }
 
-function setTabChar(tabChar) {
+function setTabChar(tabchar) {
     editorView.dispatch({
-    effects: indentUnit.reconfigure(EditorState.indentUnit.of(tabChar))
+    effects: indentUnit.reconfigure(EditorState.indentUnit.of(tabchar))
     })
 }
 
@@ -261,5 +261,6 @@ export {
   setReadOnly,
   setLineWrapping,
   setCompletions,
+  setTabChar,
   editorView,
 };

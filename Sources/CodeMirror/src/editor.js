@@ -4,7 +4,6 @@ import {EditorState, Compartment} from "@codemirror/state";
 import {EditorView} from "@codemirror/view";
 import {basicSetup} from "codemirror";
 import { indentWithTab } from "@codemirror/commands";
-import { indentUnit } from "@codemirror/language";
 import { html } from "@codemirror/lang-html";
 import { json } from "@codemirror/lang-json";
 import { xml } from "@codemirror/lang-xml";
@@ -33,6 +32,7 @@ import {
   defaultHighlightStyle,
   bracketMatching,
   foldKeymap,
+  indentUnit,
 } from "@codemirror/language";
 
 import { history, defaultKeymap, historyKeymap } from "@codemirror/commands";
@@ -51,6 +51,7 @@ const listener = new Compartment();
 const readOnly = new Compartment();
 const tabSize = new Compartment();
 const fontSize = new Compartment();
+const indentCharacter = new Compartment();
 const lineWrapping = new Compartment();
 const SUPPORTED_LANGUAGES_MAP = {
   javascript,
@@ -147,9 +148,10 @@ function setDarkMode(active) {
     });
 }
 
-function setTabChar(value) {
+function setIndentCharacter(value) {
     editorView.dispatch({
-    effects: indentUnit.reconfigure(EditorState.indentUnit.of(value))
+    effects: indentCharacter.reconfigure(EditorState.indentUnit.of([value]))
+//     	effects: indentCharacter.reconfigure(value ? EditorView.indentUnit.of(value) : "[]"),
     })
 }
 
@@ -252,7 +254,7 @@ const timer = setInterval(() => {
 export {
   setDarkMode,
   setFontSize,
-  setTabChar,
+  setIndentCharacter,
   setLanguage,
   getSupportedLanguages,
   setContent,

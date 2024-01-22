@@ -96,10 +96,10 @@ public final class CodeMirrorWebView: NativeView {
         )
     }
     
-    public func setTabChar(_ value: String) {
+    public func setIndentCharacter(_ value: String) {
         queueJavascriptFunction(
             JavascriptFunction(
-                functionString: "CodeMirror.setTabChar(value)",
+                functionString: "CodeMirror.setIndentCharacter(value)",
                 args: ["value": value]
             )
         )

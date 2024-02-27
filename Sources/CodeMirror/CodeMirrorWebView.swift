@@ -29,7 +29,9 @@ public final class CodeMirrorWebView: NativeView {
         configuration.userContentController = userController
         let webView = WKWebView(frame: bounds, configuration: configuration)
         webView.navigationDelegate = self
+#if os(macOS)
         webView.setValue(false, forKey: "drawsBackground")  // prevent white flicks
+#endif
         return webView
     }()
 

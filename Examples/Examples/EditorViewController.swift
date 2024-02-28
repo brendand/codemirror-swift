@@ -44,7 +44,7 @@ class EditorViewController: NSViewController, CodeMirrorWebViewDelegate {
     }
     
     @IBAction func setTabSize(_ sender: Any) {
-        codeMirrorView.setTabSize(4)
+//        codeMirrorView.setTabSize(4)
     }
 
     @IBAction func languageChanged(_ sender: Any) {

@@ -97,6 +97,15 @@ public final class CodeMirrorWebView: NativeView {
             )
         )
     }
+
+    public func goTo(line: Int) {
+        queueJavascriptFunction(
+            JavascriptFunction(
+                functionString: "CodeMirror.goToLine(value)",
+                args: ["value": line]
+            )
+        )
+    }
     
     public func setIndentCharacter(_ value: String) {
         queueJavascriptFunction(

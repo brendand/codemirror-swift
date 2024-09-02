@@ -43,6 +43,10 @@ class EditorViewController: NSViewController, CodeMirrorWebViewDelegate {
 
     }
     
+    @IBAction func goTo(_ sender: Any) {
+        codeMirrorView.goTo(line: 4)
+    }
+    
     @IBAction func setTabSize(_ sender: Any) {
 //        codeMirrorView.setTabSize(4)
     }
@@ -95,6 +99,7 @@ class EditorViewController: NSViewController, CodeMirrorWebViewDelegate {
                             ["label" : "record", "type" : "variable", "info" : "The currently selected record"],
                             ["label" : "form", "type" : "variable", "info" : "The currently selected form"],
                             ["label" : "search", "type" : "variable", "info" : "The currently selected saved search"],
+                            ["label" : "JSON", "type" : "keyword"],
                             ["label" : "Utils", "type" : "keyword"]]
         
         let snippets = [

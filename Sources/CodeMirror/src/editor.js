@@ -10,8 +10,8 @@ import { xml } from "@codemirror/lang-xml";
 import { css } from "@codemirror/lang-css";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { bbedit } from "@codemirror/theme-bbedit";
 import { syntaxTree } from "@codemirror/language";
-
 
 import {
   lineNumbers,
@@ -72,27 +72,68 @@ var baseTheme = EditorView.baseTheme({
     "&dark": {
         "color-scheme": "dark",
     },
+    //    ".cm-content": {minHeight: "638px"},
+    //    "cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground": {backgroundColor: "#BAD6FB"},
+    //    ".cm-selectionMatch .cm-snippetField": {backgroundColor: "#BAD6FB"},
+    //    "&.cm-focused .cm-cursor": {borderLeftColor: "#BAD6FB"},
+    ////    ".cm-gutters": {backgroundColor: "#eaeaea", border: "1", color: "#4C566A"},
+    //    "&dark.cm-activeLineGutter": {backgroundColor: "#6CB0F4", color: "#ECEFF4"},
+    //    "&dark.cm-activeLine": {backgroundColor: "#6CB0F4", border: "none", color: "#000"},
+    ////    ".cm-tooltip": {border: "none", backgroundColor: "#4C566A"},
+    ////    ".cm-tooltip .cm-tooltip-arrow:before": {borderTopColor: "transparent", borderBottomColor: "transparent"},
+    ////    ".cm-tooltip .cm-tooltip-arrow:after": {borderTopColor: '#B48EAD', borderBottomColor: '#B48EAD'},
+    ////    ".cm-tooltip-autocomplete": {"& > ul > li[aria-selected]": {backgroundColor: '#4C566A', color: '#ffffff'}}
+    //}, {dark: false});
 });
+    
+//let myTheme = EditorView.theme({
+//    "&": {
+//    color: "black",
+//    backgroundColor: "#fff"
+//    },
+//    ".cm-content": {
+//    caretColor: "#0e9"
+//    },
+//    "&.cm-focused .cm-cursor": {
+//    borderLeftColor: "#0e9"
+//    },
+//    "&.cm-focused .cm-selectionBackground, ::selection": {
+//    backgroundColor: "#074"
+//    },
+//    ".cm-gutters": {
+//    backgroundColor: "#eee",
+//    color: "#000",
+//    border: "none"
+//    }
+//}, {dark: false})
 
 var completions = [
 ];
 
 function customCompletions(context) {
-    let before = context.matchBefore(/\w+/)
-    // If completion wasn't explicitly started and there
-    // is no word before the cursor, don't open completions.
-    if (!context.explicit && !before) return null
-        return {
-            from: before ? before.from : context.pos,
-        options: completions,
-        validFor: /^\w*$/
-        }
+    const word = context.matchBefore(/\w*/);
+    
+    if (word.from == word.to && !context.explicit) return null;
+    
+    // Check if the cursor is inside a text token
+    const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
+    if (nodeBefore?.type.name === 'TextToken') {
+        return null;
+    }
+    
+    return {
+        from: word.from,
+    options: completions,
+    };
 }
 
 const myCustomCompletions = javascriptLanguage.data.of({
-//autocomplete: scopeCompletionSource(globalThis)
     autocomplete: customCompletions
 });
+
+const scopeCompletions = javascriptLanguage.data.of({
+autocomplete: scopeCompletionSource(window)
+})
 
 const editorView = new CodeMirror.EditorView({
   doc: "",
@@ -108,6 +149,7 @@ const editorView = new CodeMirror.EditorView({
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       bracketMatching(),
       closeBrackets(),
+      scopeCompletions,
       myCustomCompletions,
       autocompletion({
          activateOnTyping: true,
@@ -172,6 +214,19 @@ function setFontSize(size) {
     editorView.dispatch({
         effects: fontSize.reconfigure(EditorView.editorAttributes.of({ style: "font-size : " + size + "pt;" }),)
 //        effects: theme.reconfigure(currentTheme)
+    });
+}
+
+function goToLine(line) {
+    // Get line info from current state.
+                      
+    const lineContent = editorView.state.doc.line(line);
+    
+    editorView.dispatch({
+        // Set selection to that entire line.
+    selection: { anchor: lineContent.from },
+        // Ensure the selection is shown in viewport
+    scrollIntoView: true
     });
 }
 
@@ -261,6 +316,7 @@ export {
   insertContent,
   setListener,
   setReadOnly,
+  goToLine,
   setLineWrapping,
   setCompletions,
   editorView,

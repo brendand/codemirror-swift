@@ -72,40 +72,7 @@ var baseTheme = EditorView.baseTheme({
     "&dark": {
         "color-scheme": "dark",
     },
-    //    ".cm-content": {minHeight: "638px"},
-    //    "cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground": {backgroundColor: "#BAD6FB"},
-    //    ".cm-selectionMatch .cm-snippetField": {backgroundColor: "#BAD6FB"},
-    //    "&.cm-focused .cm-cursor": {borderLeftColor: "#BAD6FB"},
-    ////    ".cm-gutters": {backgroundColor: "#eaeaea", border: "1", color: "#4C566A"},
-    //    "&dark.cm-activeLineGutter": {backgroundColor: "#6CB0F4", color: "#ECEFF4"},
-    //    "&dark.cm-activeLine": {backgroundColor: "#6CB0F4", border: "none", color: "#000"},
-    ////    ".cm-tooltip": {border: "none", backgroundColor: "#4C566A"},
-    ////    ".cm-tooltip .cm-tooltip-arrow:before": {borderTopColor: "transparent", borderBottomColor: "transparent"},
-    ////    ".cm-tooltip .cm-tooltip-arrow:after": {borderTopColor: '#B48EAD', borderBottomColor: '#B48EAD'},
-    ////    ".cm-tooltip-autocomplete": {"& > ul > li[aria-selected]": {backgroundColor: '#4C566A', color: '#ffffff'}}
-    //}, {dark: false});
 });
-    
-//let myTheme = EditorView.theme({
-//    "&": {
-//    color: "black",
-//    backgroundColor: "#fff"
-//    },
-//    ".cm-content": {
-//    caretColor: "#0e9"
-//    },
-//    "&.cm-focused .cm-cursor": {
-//    borderLeftColor: "#0e9"
-//    },
-//    "&.cm-focused .cm-selectionBackground, ::selection": {
-//    backgroundColor: "#074"
-//    },
-//    ".cm-gutters": {
-//    backgroundColor: "#eee",
-//    color: "#000",
-//    border: "none"
-//    }
-//}, {dark: false})
 
 var completions = [
 ];

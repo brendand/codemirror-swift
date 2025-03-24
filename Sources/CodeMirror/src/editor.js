@@ -63,7 +63,6 @@ const SUPPORTED_LANGUAGES_MAP = {
   txt: () => [],
 };
 
-
 var baseTheme = EditorView.baseTheme({
     "&light": {
     backgroundColor: "white",
@@ -102,9 +101,7 @@ const scopeCompletions = javascriptLanguage.data.of({
 autocomplete: scopeCompletionSource(window)
 })
 
-const editorView = new CodeMirror.EditorView({
-  doc: "",
-  extensions: [
+const initialExtensions = [
       lineNumbers(),
       highlightActiveLineGutter(),
       highlightSpecialChars(),
@@ -143,7 +140,11 @@ const editorView = new CodeMirror.EditorView({
       language.of(javascript()),
       listener.of([]),
       indentUnit.of("    "),
-  ],
+  ];
+
+const editorView = new CodeMirror.EditorView({
+  doc: "",
+  extensions: initialExtensions,
   parent: document.body,
 });
 
@@ -165,18 +166,6 @@ function setIndentCharacter(value) {
 }
 
 function setFontSize(size) {
-
-//    let currentTheme = EditorView.theme({
-//        ".cm-content": {
-//            fontSize : size + "pt",
-//        },
-//        ".cm-gutters": {
-//            fontSize : size + "pt",
-//        },
-//    });
-//
-//    insertContent(JSON.stringify(currentTheme));
-
     
     editorView.dispatch({
         effects: fontSize.reconfigure(EditorView.editorAttributes.of({ style: "font-size : " + size + "pt;" }),)
@@ -204,16 +193,66 @@ function setLanguage(lang) {
   });
 }
 
+let updateListener = null;
+
+function setListener(fn) {
+   updateListener = EditorView.updateListener.of((v) => {
+    if (v.docChanged) {
+      fn(v.state.doc.toString());
+    }
+  });
+}
+
+// setting the default content requires creating a new state
+// but you lose the listener and extensions, so you have to
+// include those too and then dispatch the listener reconfigure
 function setContent(text) {
-    editorView.dispatch({
-    changes: { from: 0, to: editorView.state.doc.length, insert: text },
-    });
+
+  const newState = EditorState.create({
+    doc: text,
+    extensions: initialExtensions,
+  });
+
+  editorView.setState(newState);
+
+  editorView.dispatch({
+    effects: listener.reconfigure(updateListener),
+  });
+  
+  setTimeout(() => {
+    editorView.focus();
+  }, 100);
+  
 }
 
 function insertContent(text) {
-    editorView.dispatch({
-    changes: { from: editorView.state.selection.main.from, to: editorView.state.selection.main.to, insert: text },
-    });
+  const state = editorView.state;
+  const doc = state.doc;
+  const cursor = state.selection.main.head;
+
+  // Step 1: Get current line info
+  const currentLine = doc.lineAt(cursor);
+
+  // Step 2: Insert text *after* the current line (i.e., at start of next line)
+  const insertPos = currentLine.to;
+
+  // Step 3: Create a transaction to insert the text and move the cursor after it
+  const transaction = state.update({
+    changes: {
+      from: insertPos,
+      to: insertPos,
+      insert: text,
+    },
+    selection: {
+      anchor: insertPos + text.length,
+    },
+    scrollIntoView: true,
+  });
+
+  // Step 4: Dispatch transaction and refocus
+  editorView.dispatch(transaction);
+
+  editorView.focus();
 }
 
 function formatJSONSelection() {
@@ -225,18 +264,6 @@ function formatJSONSelection() {
     editorView.dispatch({
     changes: { from: editorView.state.selection.main.from, to: editorView.state.selection.main.to, insert: jsonPretty },
     });
-}
-
-function setListener(fn) {
-  editorView.dispatch({
-    effects: listener.reconfigure(
-      EditorView.updateListener.of((v) => {
-        if (v.docChanged) {
-          fn(v.state.doc.toString());
-        }
-      })
-    ),
-  });
 }
 
 function setReadOnly(value) {

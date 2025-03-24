@@ -29,6 +29,13 @@ public final class CodeMirrorWebView: NativeView {
         configuration.userContentController = userController
         let webView = WKWebView(frame: bounds, configuration: configuration)
         webView.navigationDelegate = self
+        configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
+
+        if #available(macOS 13.3, *) {
+            webView.isInspectable = true
+        } else {
+            // Fallback on earlier versions
+        }
 #if os(macOS)
         webView.setValue(false, forKey: "drawsBackground")  // prevent white flicks
 #endif

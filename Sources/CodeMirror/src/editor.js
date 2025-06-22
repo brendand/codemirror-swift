@@ -82,10 +82,16 @@ function customCompletions(context) {
   if (!word || (word.from === word.to && !context.explicit)) return null;
 
   const node = syntaxTree(context.state).resolveInner(context.pos, -1);
-  const inString = node?.type.name?.match(/String|Quoted|Template/) != null;
 
-  if (inString) {
-    return null;
+  // JavaScript strings are represented as String, TemplateString, or RegExpString
+  const stringNodeNames = [
+    "String",          // e.g., "hello"
+    "TemplateString",  // e.g., `hello`
+    "RegExpString"     // inside /regex/
+  ];
+
+  if (stringNodeNames.includes(node?.type.name)) {
+    return null; // Don't show completions inside strings
   }
 
   return {

@@ -77,20 +77,21 @@ var completions = [
 ];
 
 function customCompletions(context) {
-    const word = context.matchBefore(/\w*/);
-    
-    if (word.from == word.to && !context.explicit) return null;
-    
-    // Check if the cursor is inside a text token
-    const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
-    if (nodeBefore?.type.name === 'TextToken') {
-        return null;
-    }
-    
-    return {
-        from: word.from,
+  const word = context.matchBefore(/\w*/);
+
+  if (!word || (word.from === word.to && !context.explicit)) return null;
+
+  const node = syntaxTree(context.state).resolveInner(context.pos, -1);
+  const inString = node?.type.name?.match(/String|Quoted|Template/) != null;
+
+  if (inString) {
+    return null;
+  }
+
+  return {
+    from: word.from,
     options: completions,
-    };
+  };
 }
 
 const myCustomCompletions = javascriptLanguage.data.of({

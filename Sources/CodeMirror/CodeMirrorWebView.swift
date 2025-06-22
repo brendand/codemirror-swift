@@ -31,7 +31,7 @@ public final class CodeMirrorWebView: NativeView {
         webView.navigationDelegate = self
         configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
 
-        if #available(macOS 13.3, *) {
+        if #available(macOS 13.3, iOS 16.4, *) {
             webView.isInspectable = true
         } else {
             // Fallback on earlier versions

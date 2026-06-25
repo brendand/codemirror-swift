@@ -10,8 +10,8 @@ import { xml } from "@codemirror/lang-xml";
 import { css } from "@codemirror/lang-css";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { bbedit } from "@codemirror/theme-bbedit";
 import { syntaxTree } from "@codemirror/language";
+import { xcodeLight, xcodeDark } from '@uiw/codemirror-theme-xcode';
 
 import {
   lineNumbers,
@@ -76,23 +76,25 @@ var baseTheme = EditorView.baseTheme({
 var completions = [
 ];
 
+const ignoredCompletionNodeNames = [
+  "String",
+  "TemplateString",
+  "RegExpString",
+  "LineComment",
+  "BlockComment",
+];
+
+function isCompletionIgnored(context) {
+  const node = syntaxTree(context.state).resolveInner(context.pos, -1);
+  return ignoredCompletionNodeNames.includes(node?.type.name);
+}
+
 function customCompletions(context) {
   const word = context.matchBefore(/\w*/);
 
   if (!word || (word.from === word.to && !context.explicit)) return null;
 
-  const node = syntaxTree(context.state).resolveInner(context.pos, -1);
-
-  // JavaScript strings are represented as String, TemplateString, or RegExpString
-  const stringNodeNames = [
-    "String",          // e.g., "hello"
-    "TemplateString",  // e.g., `hello`
-    "RegExpString"     // inside /regex/
-  ];
-
-  if (stringNodeNames.includes(node?.type.name)) {
-    return null; // Don't show completions inside strings
-  }
+  if (isCompletionIgnored(context)) return null;
 
   return {
     from: word.from,
@@ -104,8 +106,10 @@ const myCustomCompletions = javascriptLanguage.data.of({
     autocomplete: customCompletions
 });
 
+const scopeCompletionSourceForWindow = scopeCompletionSource(window);
+
 const scopeCompletions = javascriptLanguage.data.of({
-autocomplete: scopeCompletionSource(window)
+autocomplete: (context) => isCompletionIgnored(context) ? null : scopeCompletionSourceForWindow(context)
 })
 
 const initialExtensions = [
@@ -234,31 +238,24 @@ function setContent(text) {
 
 function insertContent(text) {
   const state = editorView.state;
-  const doc = state.doc;
-  const cursor = state.selection.main.head;
+  const selection = state.selection.main;
+  const insertFrom = selection.from;
+  const insertTo = selection.to;
 
-  // Step 1: Get current line info
-  const currentLine = doc.lineAt(cursor);
-
-  // Step 2: Insert text *after* the current line (i.e., at start of next line)
-  const insertPos = currentLine.to;
-
-  // Step 3: Create a transaction to insert the text and move the cursor after it
+  // Insert at the current caret position, or replace the current selection.
   const transaction = state.update({
     changes: {
-      from: insertPos,
-      to: insertPos,
+      from: insertFrom,
+      to: insertTo,
       insert: text,
     },
     selection: {
-      anchor: insertPos + text.length,
+      anchor: insertFrom + text.length,
     },
     scrollIntoView: true,
   });
 
-  // Step 4: Dispatch transaction and refocus
   editorView.dispatch(transaction);
-
   editorView.focus();
 }
 

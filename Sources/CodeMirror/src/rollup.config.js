@@ -10,5 +10,9 @@ export default {
     exports: "named",
     plugins: [terser()],
   },
-  plugins: [nodeResolve()],
+  plugins: [
+    nodeResolve({
+      dedupe: ["@babel/runtime"],
+    }),
+  ],
 };
